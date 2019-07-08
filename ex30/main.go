@@ -1,26 +1,46 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
+	"bufio"
 	"log"
-
-	"github.com/ikawaha/kagome/tokenizer"
+	"os"
+	"strings"
 )
 
 func main() {
-	t := tokenizer.New()
-
-	data, err := ioutil.ReadFile("../neko.txt")
+	file, err := os.Open("../neko.txt.mecab")
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	defer file.Close()
 
-	tokens := t.Tokenize(string(data))
-	for _, token := range tokens {
-		if token.Class == tokenizer.KNOWN && token.Features()[0] == "動詞" {
-			fmt.Println(token.Surface)
+	sc := bufio.NewScanner(file)
+
+	type ads struct {
+		Surface string
+		Base    string
+		Pos     string
+		Pos1    string
+	}
+
+	lists := make([]*ads, 0)
+
+	for sc.Scan() {
+		t := sc.Text()
+		if t == "EOS" {
+			continue
 		}
+
+		ts := strings.Split(t, "	")
+		surface := ts[0]
+		adjs := strings.Split(ts[1], ",")
+
+		lists = append(lists, &ads{
+			Surface: surface,
+			Base:    adjs[6],
+			Pos:     adjs[0],
+			Pos1:    adjs[1],
+		})
 	}
 }
