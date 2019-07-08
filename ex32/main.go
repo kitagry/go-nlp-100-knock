@@ -47,7 +47,7 @@ func main() {
 	out := bufio.NewWriter(os.Stdout)
 	for _, ad := range lists {
 		if ad.Pos == "動詞" {
-			out.WriteString(ad.Surface)
+			out.WriteString(ad.Base)
 			out.WriteString("\n")
 		}
 	}
